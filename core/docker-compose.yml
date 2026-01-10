@@ -1,0 +1,100 @@
+services:
+  kafka-1:
+    image: apache/kafka:3.9.0
+    container_name: kafka-1
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-1:9090,CONTROLLER://kafka-1:9091,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:9090,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT: PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      CLUSTER_ID: 'WnLkTHhkQaiJbwP8FClPhw'
+    volumes:
+      - ./volumes/server-1:/tmp/kraft-combined-logs
+    networks:
+      - kafka-network
+
+  kafka-2:
+    image: apache/kafka:3.9.0
+    container_name: kafka-2
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-2:9090,CONTROLLER://kafka-2:9091,PLAINTEXT_HOST://0.0.0.0:9094'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-2:9090,PLAINTEXT_HOST://localhost:9094'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST: PLAINTEXT'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      CLUSTER_ID: 'WnLkTHhkQaiJbwP8FClPhw'
+    volumes:
+      - ./volumes/server-2:/tmp/kraft-combined-logs
+    networks:
+      - kafka-network
+
+  kafka-3:
+    image: apache/kafka:3.9.0
+    container_name: kafka-3
+    ports:
+      - "9096:9096"
+    environment:
+      KAFKA_NODE_ID: 3
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-3:9090,CONTROLLER://kafka-3:9091,PLAINTEXT_HOST://0.0.0.0:9096'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-3:9090,PLAINTEXT_HOST://localhost:9096'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER: PLAINTEXT,PLAINTEXT: PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      CLUSTER_ID: 'WnLkTHhkQaiJbwP8FClPhw'
+    volumes:
+      - ./volumes/server-3:/tmp/kraft-combined-logs
+    networks:
+      - kafka-network
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: kafka
+      TZ: "UTC"
+    volumes:
+      - ./volumes/mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kafka-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"  # browser will access via localhost:8080
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+      - kafka-network
+
+volumes:
+  mysql-data:
+
+networks:
+  kafka-network:
+    driver: bridge
