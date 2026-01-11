@@ -29,18 +29,14 @@ public class OrderController {
 
     @PostMapping
     ResponseEntity<OrderCreationResponse> createOrder(@RequestBody @Valid OrderCreationRequest request) {
-        Order order = new Order();
-        order.setCustomerId(request.getCustomerId());
-        order.setStatus(OrderStatus.CREATED);
-        List<OrderItem> orderItems = request.getOrderItems().stream().map(orderItemRequest -> {
-            OrderItem orderItem = new OrderItem();
-            BeanUtils.copyProperties(orderItemRequest, orderItem);
-            return orderItem;
-        }).toList();
-        order.setOrderItems(orderItems);
-
+        Order order = mapToOrder(request);
         Order savedOrder = orderService.create(order);
+        OrderCreationResponse response = mapToOrderCreationResponse(savedOrder);
 
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    private static OrderCreationResponse mapToOrderCreationResponse(Order savedOrder) {
         OrderCreationResponse response = new OrderCreationResponse();
         response.setOrderId(savedOrder.getOrderId());
         response.setCustomerId(savedOrder.getCustomerId());
@@ -51,7 +47,19 @@ public class OrderController {
             return orderItemResponse;
         }).toList();
         response.setOrderItems(savedOrderItems);
+        return response;
+    }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    private static Order mapToOrder(OrderCreationRequest request) {
+        Order order = new Order();
+        order.setCustomerId(request.getCustomerId());
+        order.setStatus(OrderStatus.CREATED);
+        List<OrderItem> orderItems = request.getOrderItems().stream().map(orderItemRequest -> {
+            OrderItem orderItem = new OrderItem();
+            BeanUtils.copyProperties(orderItemRequest, orderItem);
+            return orderItem;
+        }).toList();
+        order.setOrderItems(orderItems);
+        return order;
     }
 }
