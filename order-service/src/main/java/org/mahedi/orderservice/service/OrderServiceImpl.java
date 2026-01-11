@@ -4,6 +4,7 @@ import org.mahedi.core.dto.Order;
 import org.mahedi.core.dto.OrderItem;
 import org.mahedi.orderservice.entity.OrderEntity;
 import org.mahedi.orderservice.entity.OrderItemEntity;
+import org.mahedi.orderservice.repository.OrderHistoryRepository;
 import org.mahedi.orderservice.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +13,15 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
+    private final OrderHistoryRepository orderHistoryRepository;
 
-    public OrderServiceImpl(OrderRepository orderRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, OrderHistoryRepository orderHistoryRepository) {
         this.orderRepository = orderRepository;
+        this.orderHistoryRepository = orderHistoryRepository;
     }
 
     @Override
-    public Order create(Order order) {
+    public Order placeOrder(Order order) {
         OrderEntity orderEntity = mapToOrderEntity(order);
         orderRepository.save(orderEntity);
         return mapToOrder(orderEntity);

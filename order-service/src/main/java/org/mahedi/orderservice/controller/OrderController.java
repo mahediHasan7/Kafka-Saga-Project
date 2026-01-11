@@ -6,34 +6,42 @@ import org.mahedi.core.dto.OrderItem;
 import org.mahedi.core.types.OrderStatus;
 import org.mahedi.orderservice.dto.OrderCreationRequest;
 import org.mahedi.orderservice.dto.OrderCreationResponse;
+import org.mahedi.orderservice.dto.OrderHistoryResponse;
 import org.mahedi.orderservice.dto.OrderItemResponse;
+import org.mahedi.orderservice.service.OrderHistoryService;
 import org.mahedi.orderservice.service.OrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
+    private final OrderHistoryService orderHistoryService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, OrderHistoryService orderHistoryService) {
         this.orderService = orderService;
+        this.orderHistoryService = orderHistoryService;
     }
 
     @PostMapping
-    ResponseEntity<OrderCreationResponse> createOrder(@RequestBody @Valid OrderCreationRequest request) {
+    ResponseEntity<OrderCreationResponse> placeOrder(@RequestBody @Valid OrderCreationRequest request) {
         Order order = mapToOrder(request);
-        Order savedOrder = orderService.create(order);
+        Order savedOrder = orderService.placeOrder(order);
         OrderCreationResponse response = mapToOrderCreationResponse(savedOrder);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{orderId}/history")
+    public ResponseEntity<List<OrderHistoryResponse>> gerOrderHistory(@PathVariable UUID orderId) {
+        List<OrderHistoryResponse> orderHistories = orderHistoryService.findByOrderId(orderId);
+        return ResponseEntity.status(HttpStatus.OK).body(orderHistories);
     }
 
     private static OrderCreationResponse mapToOrderCreationResponse(Order savedOrder) {
