@@ -19,21 +19,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order create(Order order) {
-        OrderEntity orderEntity = new OrderEntity();
-        orderEntity.setCustomerId(order.getCustomerId());
-        orderEntity.setStatus(order.getStatus());
-        List<OrderItemEntity> orderItems = order.getOrderItems().stream().map(orderItem -> {
-            OrderItemEntity orderItemEntity = new OrderItemEntity();
-            orderItemEntity.setOrder(orderEntity);// set the bidirectional relationship
-            orderItemEntity.setProductId(orderItem.getProductId());
-            orderItemEntity.setQuantity(orderItem.getQuantity());
-            orderItemEntity.setPriceAtPurchase(orderItem.getPriceAtPurchase());
-            return orderItemEntity;
-        }).toList();
-        orderEntity.setOrderItems(orderItems);
-
+        OrderEntity orderEntity = mapToOrderEntity(order);
         orderRepository.save(orderEntity);
+        return mapToOrder(orderEntity);
+    }
 
+    private static Order mapToOrder(OrderEntity orderEntity) {
         Order createdOrder = new Order();
         createdOrder.setOrderId(orderEntity.getId());
         createdOrder.setCustomerId(orderEntity.getCustomerId());
@@ -47,7 +38,22 @@ public class OrderServiceImpl implements OrderService {
             return orderItem;
         }).toList();
         createdOrder.setOrderItems(createdOrderItems);
-
         return createdOrder;
+    }
+
+    private static OrderEntity mapToOrderEntity(Order order) {
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setCustomerId(order.getCustomerId());
+        orderEntity.setStatus(order.getStatus());
+        List<OrderItemEntity> orderItems = order.getOrderItems().stream().map(orderItem -> {
+            OrderItemEntity orderItemEntity = new OrderItemEntity();
+            orderItemEntity.setOrder(orderEntity);// set the bidirectional relationship
+            orderItemEntity.setProductId(orderItem.getProductId());
+            orderItemEntity.setQuantity(orderItem.getQuantity());
+            orderItemEntity.setPriceAtPurchase(orderItem.getPriceAtPurchase());
+            return orderItemEntity;
+        }).toList();
+        orderEntity.setOrderItems(orderItems);
+        return orderEntity;
     }
 }
