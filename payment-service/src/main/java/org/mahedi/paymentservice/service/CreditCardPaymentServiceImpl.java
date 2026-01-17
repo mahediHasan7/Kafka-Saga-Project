@@ -3,11 +3,13 @@ package org.mahedi.paymentservice.service;
 import org.mahedi.core.dto.CreditCardProcessRequest;
 import org.mahedi.core.exceptions.CreditCardProcessorUnavailableException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
+@Service
 public class CreditCardPaymentServiceImpl implements CreditCardPaymentService {
     private final RestTemplate restTemplate;
     private final String ccpRemoteUrl;
