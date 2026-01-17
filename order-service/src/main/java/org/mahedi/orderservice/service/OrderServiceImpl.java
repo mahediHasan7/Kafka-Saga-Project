@@ -2,29 +2,68 @@ package org.mahedi.orderservice.service;
 
 import org.mahedi.core.dto.Order;
 import org.mahedi.core.dto.OrderItem;
+import org.mahedi.core.events.OrderCreatedEvent;
+import org.mahedi.core.types.OrderStatus;
 import org.mahedi.orderservice.entity.OrderEntity;
 import org.mahedi.orderservice.entity.OrderItemEntity;
-import org.mahedi.orderservice.repository.OrderHistoryRepository;
 import org.mahedi.orderservice.repository.OrderRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final OrderHistoryRepository orderHistoryRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final String orderEventTopicName;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderHistoryRepository orderHistoryRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository,
+                            KafkaTemplate<String, Object> kafkaTemplate,
+                            @Value("${order-event-topic-name}") String orderEventTopicName) {
         this.orderRepository = orderRepository;
-        this.orderHistoryRepository = orderHistoryRepository;
+        this.kafkaTemplate = kafkaTemplate;
+        this.orderEventTopicName = orderEventTopicName;
     }
 
     @Override
+    @Transactional(value = "transactionManager")
     public Order placeOrder(Order order) {
         OrderEntity orderEntity = mapToOrderEntity(order);
         orderRepository.save(orderEntity);
+
+        // Publish OrderCreatedEvent to orders-events
+        Map<UUID, Integer> orderedProducts = new HashMap<>();
+        order.getOrderItems().forEach(orderItem -> {
+            orderedProducts.put(orderItem.getProductId(), orderItem.getQuantity());
+        });
+        
+        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(orderEntity.getId(), orderedProducts, getTotalOrderAmount(order));
+        kafkaTemplate.send(orderEventTopicName, orderCreatedEvent);
+
         return mapToOrder(orderEntity);
+    }
+
+    @Override
+    public Order changeStatus(UUID orderId, OrderStatus orderStatus) {
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        orderEntity.setStatus(orderStatus);
+        orderRepository.save(orderEntity);
+
+        return mapToOrder(orderEntity);
+    }
+
+
+    private static BigDecimal getTotalOrderAmount(Order order) {
+        return order.getOrderItems().stream()
+                .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(item.getPriceAtPurchase()))
+                .reduce(BigDecimal.ZERO, (acc, orderAmount) -> acc.add(orderAmount));
     }
 
     private static Order mapToOrder(OrderEntity orderEntity) {
