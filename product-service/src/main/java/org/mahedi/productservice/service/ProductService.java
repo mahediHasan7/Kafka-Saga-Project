@@ -10,7 +10,7 @@ public interface ProductService {
 
     Product save(Product product);
 
-    Product reserve(Product product, UUID orderId);
+    Product reserve(UUID orderId, UUID productId, Integer orderedQuantity);
 
-    void cancelReservation(Product productToCancel);
+    void cancelReservation(UUID cancelledProductId, Integer quantity);
 }

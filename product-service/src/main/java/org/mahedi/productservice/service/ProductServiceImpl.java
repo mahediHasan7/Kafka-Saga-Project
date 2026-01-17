@@ -2,7 +2,7 @@ package org.mahedi.productservice.service;
 
 import org.mahedi.core.dto.Product;
 import org.mahedi.productservice.entity.ProductEntity;
-import org.mahedi.productservice.exception.ProductInsufficientQuantityException;
+import org.mahedi.productservice.error.ProductServiceException;
 import org.mahedi.productservice.repository.ProductRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -36,14 +36,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product reserve(Product product, UUID orderId) {
-        ProductEntity productEntity = productRepository.findById(product.getId()).orElseThrow();
+    public Product reserve(UUID orderId, UUID productId, Integer orderedQuantity) {
+        ProductEntity productEntity = productRepository.findById(productId).orElseThrow();
 
-        if (product.getQuantity() > productEntity.getQuantity()) {
-            throw new ProductInsufficientQuantityException(product.getId(), orderId);
+        if (orderedQuantity > productEntity.getQuantity()) {
+            throw new ProductServiceException.ProductInsufficientQuantityException(productId, orderId);
         }
 
-        productEntity.setQuantity(productEntity.getQuantity() - product.getQuantity());
+        productEntity.setQuantity(productEntity.getQuantity() - orderedQuantity);
         productRepository.save(productEntity);
 
         Product responseProduct = new Product();
@@ -52,9 +52,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void cancelReservation(Product productToCancel) {
-        ProductEntity productEntity = productRepository.findById(productToCancel.getId()).orElseThrow();
-        productEntity.setQuantity(productEntity.getQuantity() + productToCancel.getQuantity());
+    public void cancelReservation(UUID cancelledProductId, Integer quantity) {
+        ProductEntity productEntity = productRepository.findById(cancelledProductId).orElseThrow();
+        productEntity.setQuantity(productEntity.getQuantity() + quantity);
         productRepository.save(productEntity);
     }
 }
