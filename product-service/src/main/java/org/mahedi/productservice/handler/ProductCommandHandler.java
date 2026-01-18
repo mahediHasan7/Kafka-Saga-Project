@@ -1,9 +1,9 @@
 package org.mahedi.productservice.handler;
 
-import org.mahedi.core.events.ProductReserveCancelCommand;
-import org.mahedi.core.events.ProductReserveCancelledEvent;
-import org.mahedi.core.events.ProductReserveCommand;
-import org.mahedi.core.events.ProductReserveConfirmationEvent;
+import org.mahedi.core.dto.commands.ProductReserveCancelCommand;
+import org.mahedi.core.dto.commands.ProductReserveCommand;
+import org.mahedi.core.dto.events.ProductReserveCancelledEvent;
+import org.mahedi.core.dto.events.ProductReserveConfirmationEvent;
 import org.mahedi.productservice.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

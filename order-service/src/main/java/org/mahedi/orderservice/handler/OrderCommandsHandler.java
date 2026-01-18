@@ -1,9 +1,9 @@
 package org.mahedi.orderservice.handler;
 
 import org.mahedi.core.dto.Order;
-import org.mahedi.core.events.OrderApprovedCommand;
-import org.mahedi.core.events.OrderApprovedEvent;
-import org.mahedi.core.events.OrderRejectCommand;
+import org.mahedi.core.dto.commands.OrderApprovedCommand;
+import org.mahedi.core.dto.commands.OrderRejectCommand;
+import org.mahedi.core.dto.events.OrderApprovedEvent;
 import org.mahedi.core.types.OrderStatus;
 import org.mahedi.orderservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Value;

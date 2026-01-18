@@ -2,7 +2,7 @@ package org.mahedi.orderservice.service;
 
 import org.mahedi.core.dto.Order;
 import org.mahedi.core.dto.OrderItem;
-import org.mahedi.core.events.OrderCreatedEvent;
+import org.mahedi.core.dto.events.OrderCreatedEvent;
 import org.mahedi.core.types.OrderStatus;
 import org.mahedi.orderservice.entity.OrderEntity;
 import org.mahedi.orderservice.entity.OrderItemEntity;
@@ -43,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
         order.getOrderItems().forEach(orderItem -> {
             orderedProducts.put(orderItem.getProductId(), orderItem.getQuantity());
         });
-        
+
         OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(orderEntity.getId(), orderedProducts, getTotalOrderAmount(order));
         kafkaTemplate.send(orderEventTopicName, orderCreatedEvent);
 

@@ -1,10 +1,9 @@
-package org.mahedi.core.events;
+package org.mahedi.core.dto.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.mahedi.core.types.OrderStatus;
 
 import java.util.UUID;
 
@@ -12,7 +11,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderApprovedEvent {
+public class ProductReserveCancelledEvent {
     private UUID orderId;
-    private OrderStatus orderStatus;
 }

@@ -1,4 +1,4 @@
-package org.mahedi.core.events;
+package org.mahedi.core.dto.commands;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,8 +13,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentProcessCommand {
+public class ProductReserveCommand {
     private UUID orderId;
     private Map<UUID, Integer> orderedProducts;
-    private BigDecimal totalAmount;
+    private BigDecimal orderAmount;
 }

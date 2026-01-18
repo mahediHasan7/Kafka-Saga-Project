@@ -1,20 +1,18 @@
-package org.mahedi.core.events;
+package org.mahedi.core.dto.commands;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.mahedi.core.types.OrderStatus;
 
-import java.math.BigDecimal;
-import java.util.Map;
 import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductReserveConfirmationEvent {
+public class OrderRejectCommand {
     private UUID orderId;
-    private Map<UUID, Integer> reservedProducts;
-    private BigDecimal orderAmount;
+    private OrderStatus orderStatus;
 }

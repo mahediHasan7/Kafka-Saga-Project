@@ -1,4 +1,4 @@
-package org.mahedi.core.events;
+package org.mahedi.core.dto.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

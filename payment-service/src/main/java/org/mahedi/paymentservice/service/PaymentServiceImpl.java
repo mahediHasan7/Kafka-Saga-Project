@@ -1,6 +1,6 @@
 package org.mahedi.paymentservice.service;
 
-import org.mahedi.core.events.OrderCreatedEvent;
+import org.mahedi.core.dto.events.OrderCreatedEvent;
 import org.mahedi.core.exceptions.CreditCardProcessorUnavailableException;
 import org.mahedi.paymentservice.dto.Payment;
 import org.mahedi.paymentservice.entity.PaymentEntity;

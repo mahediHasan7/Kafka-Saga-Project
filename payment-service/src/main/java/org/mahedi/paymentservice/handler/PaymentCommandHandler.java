@@ -1,9 +1,9 @@
 package org.mahedi.paymentservice.handler;
 
-import org.mahedi.core.events.OrderCreatedEvent;
-import org.mahedi.core.events.PaymentFailedEvent;
-import org.mahedi.core.events.PaymentProcessCommand;
-import org.mahedi.core.events.PaymentProcessSuccessfulEvent;
+import org.mahedi.core.dto.commands.PaymentProcessCommand;
+import org.mahedi.core.dto.events.OrderCreatedEvent;
+import org.mahedi.core.dto.events.PaymentFailedEvent;
+import org.mahedi.core.dto.events.PaymentProcessSuccessfulEvent;
 import org.mahedi.paymentservice.service.PaymentService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
